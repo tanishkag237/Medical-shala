@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../data/dummy_patients.dart'; // Your dummy data file
 import '../../../models/patient_model.dart';
 import '../../../widgets/app_drawer.dart'; // Your PatientModel
+import 'SinglePatientChat.dart';
 
 class InboxList extends StatelessWidget {
   const InboxList({super.key});
@@ -10,26 +11,6 @@ class InboxList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
        drawer: const AppDrawer(),
-      // appBar: AppBar(
-      //       backgroundColor: Colors.white,
-      //       elevation: 1,
-      //       centerTitle: true,
-      //       iconTheme: const IconThemeData(color: Colors.black), // Ensure the menu icon is visible
-      //       title: Text("Appointments",
-      //         style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18),
-      //       ),
-      //       leading: Builder(
-      //         builder: (context) {
-      //           return IconButton(
-      //             icon: const Icon(Icons.menu), // Menu icon
-      //             onPressed: () {
-      //               Scaffold.of(context).openDrawer(); // Open the drawer
-      //             },
-      //           );
-      //         },
-      //       ),
-            
-      //     ),
       body: Column(
         children: [
           const Divider(
@@ -59,14 +40,14 @@ class InboxList extends StatelessWidget {
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
                         ),
                         // Uncomment this for navigation functionality
-                        // onTap: () {
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder: (_) => SinglePatientChat(name: patient.name),
-                        //     ),
-                        //   );
-                        // },
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Singlepatientchat(name: patient.name),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const Divider(
