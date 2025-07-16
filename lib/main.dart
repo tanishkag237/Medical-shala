@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+// import 'screens/logins/login_screen.dart';
+import 'screens/logins/login_screen.dart';
+import 'screens/logins/user_selection.dart';
 import 'theme/app_theme.dart';
-import 'widgets/Navigation.dart';
+// import 'widgets/Navigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MedShala',
-      home: const Navigation(),
+      home: const LoginScreen(),
        theme: appTheme,
       debugShowCheckedModeBanner: false,
     );

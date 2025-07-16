@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:medshala/theme/app_colors.dart';
 
 import '../../widgets/Navigation.dart';
-
-
+import 'doc_login.dart';
+import 'pateint_login.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,9 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
                   child: IntrinsicHeight(
@@ -108,8 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Checkbox(
                               value: false,
                               onChanged: (_) {},
-                              side:
-                                  const BorderSide(color: AppColors.primary),
+                              side: const BorderSide(color: AppColors.primary),
                             ),
                             const Text('Remember me'),
                             const Spacer(),
@@ -148,16 +145,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content:
-                                      Text('Please enter email and password'),
+                                  content: Text(
+                                    'Please enter email and password',
+                                  ),
                                 ),
                               );
                             }
                           },
                           child: const Text(
                             'Sign In',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         ),
 
@@ -169,8 +166,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Expanded(child: Divider(color: Colors.black54)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text("Or Sign up with",
-                                  style: TextStyle(color: Colors.black54)),
+                              child: Text(
+                                "Or Sign up with",
+                                style: TextStyle(color: Colors.black54),
+                              ),
                             ),
                             Expanded(child: Divider(color: Colors.black54)),
                           ],
@@ -182,10 +181,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _socialButton(
-                                "assets/logos/googleLogo.png", screenWidth),
+                              "assets/logos/googleLogo.png",
+                              screenWidth,
+                            ),
                             SizedBox(width: screenWidth * 0.05),
                             _socialButton(
-                                "assets/logos/appleLogo.png", screenWidth),
+                              "assets/logos/appleLogo.png",
+                              screenWidth,
+                            ),
                           ],
                         ),
 
@@ -193,20 +196,62 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         Padding(
                           padding: EdgeInsets.only(
-                              top: screenHeight * 0.02, bottom: 20),
-                          child: Row(
+                            top: screenHeight * 0.02,
+                            bottom: 20,
+                          ),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
                                 "Don't have an account? ",
                                 style: TextStyle(color: Colors.black54),
                               ),
-                              TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  'Register',
-                                  style: TextStyle(color: AppColors.primary),
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Register as',
+                                    style: TextStyle(color: AppColors.primary),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const PateintLogin(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'User',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '|',
+                                    style: TextStyle(color: AppColors.primary),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const DoctorLogin(),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Doctor',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -236,10 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
           border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(11.0),
         ),
-        child: Image.asset(
-          assetPath,
-          height: screenWidth * 0.08,
-        ),
+        child: Image.asset(assetPath, height: screenWidth * 0.08),
       ),
     );
   }
