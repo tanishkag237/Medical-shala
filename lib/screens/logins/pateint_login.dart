@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/Navigation.dart';
 import '../../widgets/custom_text_field.dart';
@@ -13,18 +16,18 @@ class PateintLogin extends StatefulWidget {
 }
 
 class _PateintLoginState extends State<PateintLogin> {
-
-   final emailController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final phoneController = TextEditingController();
   final fullNameController = TextEditingController();
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
-     final screenHeight = MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -110,7 +113,8 @@ class _PateintLoginState extends State<PateintLogin> {
                             ),
                             onPressed: () {
                               setState(() {
-                                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                                isConfirmPasswordVisible =
+                                    !isConfirmPasswordVisible;
                               });
                             },
                           ),
@@ -140,61 +144,65 @@ class _PateintLoginState extends State<PateintLogin> {
                               borderRadius: BorderRadius.circular(11.0),
                             ),
                           ),
-                          onPressed: () {
-                            final email = emailController.text.trim();
-                            final password = passwordController.text.trim();
-                            final confirmPassword = confirmPasswordController
-                                .text
-                                .trim();
-                            final phone = phoneController.text.trim();
-                            
-                            final fullName = fullNameController.text.trim();
+                          onPressed: () async {
+                          final name = fullNameController.text.trim();
+                          final email = emailController.text.trim();
+  final password = passwordController.text.trim();
+  
+  final contact = phoneController.text.trim();
 
-                            if (password != confirmPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Passwords do not match.'),
-                                ),
-                              );
-                            } else if (!RegExp(
-                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                            ).hasMatch(email)) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter a valid email address.',
-                                  ),
-                                ),
-                              );
-                            } else if (phone.length < 10) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter a valid phone number.',
-                                  ),
-                                ),
-                              );
-                            } else if (email.isEmpty ||
-                                password.isEmpty ||
-                                confirmPassword.isEmpty ||
-                                phone.isEmpty ||
-                                fullName.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter the required fields.',
-                                  ),
-                                ),
-                              );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Navigation(),
-                                ),
-                              );
-                            }
-                          },
+  if (name.isEmpty || email.isEmpty || password.isEmpty ||  contact.isEmpty ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please fill all fields')),
+    );
+    return;
+  }
+
+  try {
+    // Step 1: Register user with email & password
+    final userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+
+    final uid = userCredential.user!.uid;
+
+    // Step 2: Store user profile in Firestore (patients collection)
+    await FirebaseFirestore.instance
+        .collection('patients')
+        .doc(uid)
+        .set({
+          'name': name,
+          'email': email,
+          'age': '',
+          'gender': '',
+          'contact': contact,
+          'registrationDate': Timestamp.now(),
+          'uid': uid,
+          'imagePath': '', // leave blank if you don't have it yet
+          'appointmentTime': '',
+          'lastVisited': '',
+          'allergies': '',
+          'bloodGroup': '',
+          'diagnosisDetails': [],
+        });
+
+    // Step 3: Navigate or show success
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Registration successful')),
+    );
+
+    // Example navigation (replace with your Dashboard or Navigation widget)
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Navigation()),
+    );
+  } catch (e) {
+    print('Registration error: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Registration failed: ${e.toString()}')),
+    );
+  }
+},
+
 
                           child: const Text(
                             'Register',

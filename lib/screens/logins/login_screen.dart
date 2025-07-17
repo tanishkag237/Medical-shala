@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medshala/theme/app_colors.dart';
 
+import '../../services/auth_service.dart';
 import '../../widgets/Navigation.dart';
 import 'doc_login.dart';
 import 'pateint_login.dart';
@@ -16,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isPasswordVisible = false;
+    final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -130,28 +132,34 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(11.0),
                             ),
                           ),
-                          onPressed: () {
-                            final email = emailController.text.trim();
-                            final password = passwordController.text.trim();
+                          onPressed: () async {
+  final email = emailController.text.trim();
+  final password = passwordController.text.trim();
 
-                            if (email.isNotEmpty && password.isNotEmpty) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const Navigation(), // Replace this
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter email and password',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please enter email and password')),
+    );
+    return;
+  }
+
+  try {
+    final role = await authService.loginUser(email, password);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Navigation()),
+    );
+
+    // Optional: show dashboard based on role
+    print('Logged in as $role');
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login failed: $e')),
+    );
+  }
+},
+
                           child: const Text(
                             'Sign In',
                             style: TextStyle(color: Colors.white, fontSize: 16),

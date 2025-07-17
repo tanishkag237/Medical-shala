@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/Navigation.dart';
 import '../../widgets/custom_text_field.dart';
@@ -23,6 +26,7 @@ class _DoctorLoginState extends State<DoctorLogin> {
   final fullNameController = TextEditingController();
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +125,8 @@ class _DoctorLoginState extends State<DoctorLogin> {
                             ),
                             onPressed: () {
                               setState(() {
-                                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                                isConfirmPasswordVisible =
+                                    !isConfirmPasswordVisible;
                               });
                             },
                           ),
@@ -151,62 +156,81 @@ class _DoctorLoginState extends State<DoctorLogin> {
                               borderRadius: BorderRadius.circular(11.0),
                             ),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
+                            final name = fullNameController.text.trim();
                             final email = emailController.text.trim();
                             final password = passwordController.text.trim();
-                            final confirmPassword = confirmPasswordController
-                                .text
-                                .trim();
-                            final phone = phoneController.text.trim();
                             final specialization = specializationController.text
                                 .trim();
-                            final hospitalName = hospitalNameController.text
-                                .trim();
-                            final fullName = fullNameController.text.trim();
+                            final confirmPassword =
+                                confirmPasswordController.text.trim();
+                            
+                            final clinic = hospitalNameController.text.trim();
+                            
 
-                            if (password != confirmPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Passwords do not match.'),
-                                ),
-                              );
-                            } else if (!RegExp(
-                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                            ).hasMatch(email)) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter a valid email address.',
-                                  ),
-                                ),
-                              );
-                            } else if (phone.length < 10) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please enter a valid phone number.',
-                                  ),
-                                ),
-                              );
-                            } else if (email.isEmpty ||
+                            if (name.isEmpty ||
+                                email.isEmpty ||
                                 password.isEmpty ||
-                                confirmPassword.isEmpty ||
-                                phone.isEmpty ||
                                 specialization.isEmpty ||
-                                hospitalName.isEmpty ||
-                                fullName.isEmpty) {
+                                confirmPassword.isEmpty ||
+                                clinic.isEmpty
+                               ) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
+                                  content: Text('Please fill all fields'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            try {
+                              // Step 1: Register with Firebase Auth
+                              final userCredential = await FirebaseAuth.instance
+                                  .createUserWithEmailAndPassword(
+                                    email: email,
+                                    password: password,
+                                  );
+
+                              final uid = userCredential.user!.uid;
+
+                              // Step 2: Add doctor profile to Firestore in 'doctors' collection
+                              await FirebaseFirestore.instance
+                                  .collection('doctors')
+                                  .doc(uid)
+                                  .set({
+                                    'name': name,
+                                    'email': email,
+                                    'specialization': specialization,
+                                    'experience': '',
+                                    'clinic': clinic,
+                                    'timings': '',
+                                    'rating': 0, // default
+                                    'uid': uid,
+                                    'imagePath': '', // default empty
+                                  });
+
+                              // Step 3: Show success & navigate
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Please enter the required fields.',
+                                    'Doctor registration successful',
                                   ),
                                 ),
                               );
-                            } else {
-                              Navigator.push(
+
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const Navigation(),
+                                  builder: (_) => Navigation(),
+                                ), // replace with your desired screen
+                              );
+                            } catch (e) {
+                              print('Doctor registration error: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Registration failed: ${e.toString()}',
+                                  ),
                                 ),
                               );
                             }
