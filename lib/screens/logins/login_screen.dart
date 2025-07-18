@@ -3,6 +3,7 @@ import 'package:medshala/theme/app_colors.dart';
 
 import '../../services/auth_service.dart';
 import '../../widgets/Navigation.dart';
+import '../../widgets/RoleSelectionDialog.dart';
 import 'doc_login.dart';
 import 'pateint_login.dart';
 
@@ -198,29 +199,35 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _socialButton(
-                              "assets/logos/googleLogo.png",
-                              screenWidth,
-                              () async {
-                                try {
-                                  await authService.signInWithGoogle();
-                                  // Navigate to next screen after success, e.g.:
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Navigation(),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "Google Sign-In failed: $e",
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
+  "assets/logos/googleLogo.png",
+  screenWidth,
+  () async {
+    try {
+      final selectedRole = await showDialog<String>(
+        context: context,
+        builder: (_) => const RoleSelectionDialog(),
+      );
+
+      if (selectedRole == null) return; // User canceled
+
+      final userCredential = await authService.signInWithGoogle(role: selectedRole);
+
+      if (userCredential != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Navigation(),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Google Sign-In failed: $e")),
+      );
+    }
+  },
+),
+
                             SizedBox(width: screenWidth * 0.05),
                             _socialButton(
                               "assets/logos/appleLogo.png",

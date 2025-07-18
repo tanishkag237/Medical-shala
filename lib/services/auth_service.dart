@@ -3,66 +3,69 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Initialize Google Sign-In (6.x API)
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email'],
-  );
+  // Initialize Google Sign-In
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-  // Google Sign-In method using stable 6.x API
-  Future<UserCredential?> signInWithGoogle() async {
-    try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  // Google Sign-In method with role selection
+  Future<UserCredential?> signInWithGoogle({required String role}) async {
+  try {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return null;
 
-      // If user cancels the sign-in
-      if (googleUser == null) {
-        print('Google Sign-In cancelled by user');
-        return null;
-      }
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final userCredential = await _auth.signInWithCredential(credential);
 
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+    if (userCredential.user != null) {
+      await _storeGoogleUserInFirestore(
+        user: userCredential.user!,
+        googleUser: googleUser,
+        role: role,
       );
-
-      // Once signed in, return the UserCredential
-      final userCredential = await _auth.signInWithCredential(credential);
-      
-      // Store user data in Firestore
-      if (userCredential.user != null) {
-        await _storeGoogleUserInFirestore(userCredential.user!, googleUser);
-      }
-      
-      print('Google Sign-In successful for: ${googleUser.email}');
-      return userCredential;
-    } catch (e) {
-      print('Google Sign-In Error: $e');
-      rethrow;
     }
+
+    return userCredential;
+  } catch (e) {
+    print('Google Sign-In Error: $e');
+    rethrow;
+  }
+}
+
+Future<void> _storeGoogleUserInFirestore({
+  required User user,
+  required GoogleSignInAccount googleUser,
+  required String role,
+}) async {
+  final uid = user.uid;
+  final mainCollection = _firestore.collection(role == 'doctor' ? 'doctors' : 'patients');
+  final otherCollection = _firestore.collection(role == 'doctor' ? 'patients' : 'doctors');
+
+  final alreadyExists = await mainCollection.doc(uid).get();
+  final existsInOther = await otherCollection.doc(uid).get();
+
+  if (existsInOther.exists) {
+    throw Exception('You are already registered as a ${role == 'doctor' ? 'patient' : 'doctor'}');
   }
 
-  // Store Google user data in Firestore
-  Future<void> _storeGoogleUserInFirestore(User firebaseUser, GoogleSignInAccount googleUser) async {
-    final uid = firebaseUser.uid;
-    
-    // Check if user already exists
-    final userDoc = await _firestore.collection('patients').doc(uid).get();
-    
-    if (!userDoc.exists) {
-      await _firestore.collection('patients').doc(uid).set({
-        'name': googleUser.displayName ?? firebaseUser.displayName ?? '',
-        'email': googleUser.email,
-        'uid': uid,
-        'registrationDate': Timestamp.now(),
-        'method': 'google',
-        'imagePath': googleUser.photoUrl ?? firebaseUser.photoURL ?? '',
+  if (!alreadyExists.exists) {
+    final data = {
+      'uid': uid,
+      'name': googleUser.displayName ?? user.displayName ?? '',
+      'email': googleUser.email,
+      'registrationDate': Timestamp.now(),
+      'method': 'google',
+      'imagePath': googleUser.photoUrl ?? user.photoURL ?? '',
+    };
+
+    if (role == 'patient') {
+      data.addAll({
         'age': '',
         'gender': '',
         'contact': '',
@@ -72,13 +75,25 @@ class AuthService {
         'bloodGroup': '',
         'diagnosisDetails': [],
       });
-      print('New Google user stored in Firestore: ${googleUser.email}');
     } else {
-      print('Existing Google user signed in: ${googleUser.email}');
+      data.addAll({
+        'specialization': '',
+        'clinic': '',
+        'experience': '',
+        'timings': '',
+        'rating': 0,
+      });
     }
-  }
 
-  // Register a patient
+    await mainCollection.doc(uid).set(data);
+    print('New $role added: ${googleUser.email}');
+  } else {
+    print('Existing $role signed in: ${googleUser.email}');
+  }
+}
+
+
+  // Register a patient with email/password
   Future<void> registerPatient({
     required String email,
     required String password,
@@ -88,11 +103,10 @@ class AuthService {
       email: email,
       password: password,
     );
-
     await _firestore.collection('patients').doc(userCred.user!.uid).set(patientData);
   }
 
-  // Register a doctor
+  // Register a doctor with email/password
   Future<void> registerDoctor({
     required String email,
     required String password,
@@ -102,11 +116,10 @@ class AuthService {
       email: email,
       password: password,
     );
-
     await _firestore.collection('doctors').doc(userCred.user!.uid).set(doctorData);
   }
 
-  // Login and return role
+  // Login user with email/password and return their role
   Future<String> loginUser(String email, String password) async {
     final userCred = await _auth.signInWithEmailAndPassword(
       email: email,
@@ -115,30 +128,30 @@ class AuthService {
 
     final uid = userCred.user!.uid;
 
-    final isPatient = await _firestore.collection('patients').doc(uid).get();
-    if (isPatient.exists) return 'patient';
+    final patientDoc = await _firestore.collection('patients').doc(uid).get();
+    if (patientDoc.exists) return 'patient';
 
-    final isDoctor = await _firestore.collection('doctors').doc(uid).get();
-    if (isDoctor.exists) return 'doctor';
+    final doctorDoc = await _firestore.collection('doctors').doc(uid).get();
+    if (doctorDoc.exists) return 'doctor';
 
-    throw Exception('User not found in patient or doctor collection');
+    throw Exception('User not found in either collection');
   }
 
-  // Sign out from both Firebase and Google
+  // Sign out from Firebase and Google
   Future<void> signOut() async {
     try {
       await _auth.signOut();
       await _googleSignIn.signOut();
-      print('Successfully signed out from Firebase and Google');
+      print('Successfully signed out');
     } catch (e) {
       print('Sign out error: $e');
       rethrow;
     }
   }
 
-  // Get current user
+  // Check current user
   User? get currentUser => _auth.currentUser;
 
-  // Check login status
+  // Login status
   bool get isLoggedIn => _auth.currentUser != null;
 }
