@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isPasswordVisible = false;
-    final authService = AuthService();
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -133,32 +133,41 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           onPressed: () async {
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+                            final email = emailController.text.trim();
+                            final password = passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please enter email and password')),
-    );
-    return;
-  }
+                            if (email.isEmpty || password.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please enter email and password',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
 
-  try {
-    final role = await authService.loginUser(email, password);
+                            try {
+                              final role = await authService.loginUser(
+                                email,
+                                password,
+                              );
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const Navigation()),
-    );
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const Navigation(),
+                                ),
+                              );
 
-    // Optional: show dashboard based on role
-    print('Logged in as $role');
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Login failed: $e')),
-    );
-  }
-},
+                              // Optional: show dashboard based on role
+                              print('Logged in as $role');
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Login failed: $e')),
+                              );
+                            }
+                          },
 
                           child: const Text(
                             'Sign In',
@@ -191,11 +200,34 @@ class _LoginScreenState extends State<LoginScreen> {
                             _socialButton(
                               "assets/logos/googleLogo.png",
                               screenWidth,
+                              () async {
+                                try {
+                                  await authService.signInWithGoogle();
+                                  // Navigate to next screen after success, e.g.:
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const Navigation(),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Google Sign-In failed: $e",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                             SizedBox(width: screenWidth * 0.05),
                             _socialButton(
                               "assets/logos/appleLogo.png",
                               screenWidth,
+                              () {
+                                // Implement Apple Sign-In here
+                              },
                             ),
                           ],
                         ),
@@ -276,9 +308,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  static Widget _socialButton(String assetPath, double screenWidth) {
+  static Widget _socialButton(
+    String assetPath,
+    double screenWidth,
+    VoidCallback onTap,
+  ) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(11.0),
       child: Container(
         padding: EdgeInsets.symmetric(
