@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'user_avatar.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -28,12 +29,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      actions: const [
-        CircleAvatar(
-          backgroundImage: AssetImage("assets/people/p1.jpg"),
+      actions: [
+        UserAvatar(
           radius: 18,
+          margin: const EdgeInsets.only(right: 10),
         ),
-        SizedBox(width: 10),
       ],
     );
   }

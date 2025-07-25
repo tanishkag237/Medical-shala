@@ -26,13 +26,7 @@ class DoctorInfoCard extends StatelessWidget {
             // Doctor Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                doctor.imagePath,
-                width: 116,
-                height: 150,
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter,
-              ),
+              child: _buildDoctorImage(),
             ),
 
             const SizedBox(width: 16),
@@ -100,5 +94,64 @@ class DoctorInfoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildDoctorImage() {
+    // Check if imagePath is a URL that starts with http
+    if (doctor.imagePath.startsWith('http')) {
+      // Network image from Firebase
+      return Image.network(
+        doctor.imagePath,
+        width: 116,
+        height: 150,
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        errorBuilder: (context, error, stackTrace) {
+          print('Failed to load image: ${doctor.imagePath}');
+          print('Error: $error');
+          // Fallback to default asset if network image fails
+          return Image.asset(
+            'assets/people/doc1.jpg',
+            width: 116,
+            height: 150,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            width: 116,
+            height: 150,
+            color: Colors.grey[300],
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        },
+      );
+    } else {
+      // Asset image (fallback) or invalid URL
+      return Image.asset(
+        doctor.imagePath.startsWith('assets/') ? doctor.imagePath : 'assets/people/doc1.jpg',
+        width: 116,
+        height: 150,
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        errorBuilder: (context, error, stackTrace) {
+          // If even the asset fails, show a placeholder
+          return Container(
+            width: 116,
+            height: 150,
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.grey,
+            ),
+          );
+        },
+      );
+    }
   }
 }

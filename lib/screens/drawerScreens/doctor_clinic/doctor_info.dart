@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medshala/models/doctor_model.dart';
 import '../../../widgets/doctor_info_card.dart';
 
@@ -11,6 +12,24 @@ class DoctorInfo extends StatefulWidget {
 
 class _DoctorInfoState extends State<DoctorInfo> {
   final TextEditingController _searchController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,28 +97,76 @@ class _DoctorInfoState extends State<DoctorInfo> {
 
               const SizedBox(height: 15),
 
-              DoctorInfoCard(
-                doctor: DoctorCard(
-                  name: "Dr. John Doe",
-                  specialization: "Cardiologist",
-                  clinic: "City Hospital",
-                  experience: "10 years",
-                  timings: "9 AM - 5 PM",
-                  rating: 4.8,
-                  imagePath: "assets/people/doc1.jpg",
-                ),
-              ),
+              // Doctors List from Firebase
+              StreamBuilder<QuerySnapshot>(
+                stream: _firestore.collection('doctors').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-               DoctorInfoCard(
-                doctor: DoctorCard(
-                  name: "Dr. John Doe",
-                  specialization: "Cardiologist",
-                  clinic: "City Hospital",
-                  experience: "10 years",
-                  timings: "9 AM - 5 PM",
-                  rating: 4.8,
-                  imagePath: "assets/people/doc1.jpg",
-                ),
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('No doctors found'),
+                    );
+                  }
+
+                  final doctors = snapshot.data!.docs;
+
+                  // Filter doctors based on search query
+                  final filteredDoctors = doctors.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final name = (data['name'] ?? '').toString().toLowerCase();
+                    final specialization = (data['specialization'] ?? '').toString().toLowerCase();
+                    
+                    return _searchQuery.isEmpty ||
+                           name.contains(_searchQuery) ||
+                           specialization.contains(_searchQuery);
+                  }).toList();
+
+                  if (filteredDoctors.isEmpty) {
+                    return Center(
+                      child: Text(
+                        _searchQuery.isEmpty ? 'No doctors found' : 'No doctors match your search',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: filteredDoctors.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      
+                      // Debug: Print the actual data from Firebase
+                      print('DEBUG: Doctor data from Firebase: $data');
+                      print('DEBUG: Image path: ${data['imagePath']}');
+                      
+                      // Create DoctorCard from Firebase data
+                      final doctor = DoctorCard(
+                        name: data['name'] ?? 'Unknown Doctor',
+                        specialization: data['specialization'] ?? 'General',
+                        clinic: data['clinic'] ?? 'Unknown Clinic',
+                        experience: data['experience'] ?? '0 years',
+                        timings: data['timings'] ?? 'Not specified',
+                        rating: (data['rating'] ?? 0).toDouble(),
+                        imagePath: data['imagePath'] ?? 'assets/people/doc1.jpg',
+                      );
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: DoctorInfoCard(doctor: doctor),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../widgets/user_avatar.dart';
 import 'clininc_info.dart';
 import 'doctor_info.dart';
 
@@ -24,13 +25,12 @@ class _DocClinicTabsState extends State<DocClinicTabs> {
           'Doctors & Clinic',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
-         actions: const [
-        CircleAvatar(
-          backgroundImage: AssetImage("assets/people/p1.jpg"),
-          radius: 18,
-        ),
-        SizedBox(width: 10),
-      ],
+         actions: [
+           UserAvatar(
+             radius: 18,
+             margin: EdgeInsets.only(right: 10),
+           ),
+         ],
           bottom: const TabBar(
             tabs: [
               Tab(text: "Doctors"),
