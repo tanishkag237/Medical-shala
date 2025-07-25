@@ -64,7 +64,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       ),
     );
                   },
-                  horizontalPadding: 10,
+                  horizontalPadding: 9,
                   verticalPadding: 9,
                 ),
                 ButtonText(

@@ -149,6 +149,8 @@ Future<void> _storeGoogleUserInFirestore({
     }
   }
 
+  
+
   // Check current user
   User? get currentUser => _auth.currentUser;
 
