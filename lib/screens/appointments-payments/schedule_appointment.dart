@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:medshala/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/appointment_details_data.dart';
+import '../../models/appointment_firebase_model.dart';
+import '../../services/appointment_service.dart';
 import '../../widgets/Button_text.dart';
 import '../../widgets/custom_app_bar.dart';
 import 'appointment_details.dart';
@@ -16,6 +19,7 @@ class ScheduleAppointment extends StatefulWidget {
 
 class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   final _formKey = GlobalKey<FormState>();
+  final AppointmentService _appointmentService = AppointmentService();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
@@ -23,12 +27,16 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   final TextEditingController contactController = TextEditingController();
 
   String? selectedDoctor;
+  String? selectedDoctorId;
   String? selectedHospital;
   String? selectedDate;
   String? selectedSlot;
   String? gender;
 
-  final List<String> doctors = ['Dr. Sharma', 'Dr. Mehta', 'Dr. Verma'];
+  List<Map<String, dynamic>> doctors = [];
+  bool isLoadingDoctors = true;
+  bool isSubmitting = false;
+
   final List<String> hospitals = [
     'City Hospital',
     'Green Clinic',
@@ -38,11 +46,74 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
   final List<String> slots = ['Slot 1', 'Slot 2', 'Slot 3'];
 
   @override
+  void initState() {
+    super.initState();
+    _loadDoctors();
+    _loadUserDetails();
+  }
+
+  Future<void> _loadDoctors() async {
+    setState(() {
+      isLoadingDoctors = true;
+    });
+
+    try {
+      _appointmentService.getDoctors().listen((snapshot) {
+        final List<Map<String, dynamic>> loadedDoctors = [];
+        for (var doc in snapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>;
+          loadedDoctors.add({
+            'id': doc.id,
+            'name': data['name'] ?? 'Unknown Doctor',
+            'specialization': data['specialization'] ?? 'General',
+            'clinic': data['clinic'] ?? 'Unknown Clinic',
+          });
+        }
+        if (mounted) {
+          setState(() {
+            doctors = loadedDoctors;
+            isLoadingDoctors = false;
+          });
+        }
+      });
+    } catch (e) {
+      print('Error loading doctors: $e');
+      if (mounted) {
+        setState(() {
+          isLoadingDoctors = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadUserDetails() async {
+    try {
+      final userDetails = await _appointmentService.getCurrentUserDetails();
+      if (userDetails != null && mounted) {
+        setState(() {
+          nameController.text = userDetails['name'] ?? '';
+          if (userDetails['contact'] != null) {
+            contactController.text = userDetails['contact'].toString();
+          }
+          if (userDetails['age'] != null) {
+            ageController.text = userDetails['age'].toString();
+          }
+          if (userDetails['gender'] != null) {
+            gender = userDetails['gender'];
+          }
+        });
+      }
+    } catch (e) {
+      print('Error loading user details: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar:  const CustomAppBar(title: "Schedule Appointment"),
+      appBar: const CustomAppBar(title: "Schedule Appointment"),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: size.width * 0.04,
@@ -54,7 +125,7 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               sectionTitle("Patient Details", size),
-              textformField("Patient’s Name", nameController, size),
+              textformField("Patient's Name", nameController, size),
               Row(
                 children: [
                   Expanded(child: textformField("Age", ageController, size)),
@@ -73,15 +144,22 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
 
               SizedBox(height: size.height * 0.02),
               sectionTitle("Doctor Details", size),
+              isLoadingDoctors
+                  ? const Center(child: CircularProgressIndicator())
+                  : doctorDropdownField(
+                      "Doctor's Name",
+                      doctors,
+                      selectedDoctor,
+                      (val, id) {
+                        setState(() {
+                          selectedDoctor = val;
+                          selectedDoctorId = id;
+                        });
+                      },
+                      size,
+                    ),
               dropdownField(
-                "Doctor’s Name",
-                doctors,
-                selectedDoctor,
-                (val) => setState(() => selectedDoctor = val),
-                size,
-              ),
-              dropdownField(
-                "Hospital’s Name",
+                "Hospital's Name",
                 hospitals,
                 selectedHospital,
                 (val) => setState(() => selectedHospital = val),
@@ -190,21 +268,23 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
               SizedBox(height: size.height * 0.02),
 
               Center(
-                child: ButtonText(
-                  horizontalPadding: size.width * 0.02,
-                  label: "Schedule Appointment",
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && gender != null) {
-                      _submitForm();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please fill all the fields."),
-                        ),
-                      );
-                    }
-                  },
-                ),
+                child: isSubmitting
+                    ? const CircularProgressIndicator()
+                    : ButtonText(
+                        horizontalPadding: size.width * 0.02,
+                        label: "Schedule Appointment",
+                        onPressed: () {
+                          if (_formKey.currentState!.validate() && gender != null) {
+                            _submitForm();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Please fill all the fields."),
+                              ),
+                            );
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -252,6 +332,55 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
             vertical: size.height * 0.015,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget doctorDropdownField(
+    String hint,
+    List<Map<String, dynamic>> items,
+    String? selectedValue,
+    Function(String?, String?) onChanged,
+    Size size,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(7),
+      child: DropdownButtonFormField<String>(
+        value: selectedValue,
+        icon: const Icon(Icons.keyboard_arrow_down),
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: const Color(0xFFE3F3FF),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.03,
+            vertical: size.height * 0.015,
+          ),
+        ),
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Please select $hint' : null,
+        items: items
+            .map(
+              (item) => DropdownMenuItem<String>(
+                value: item['name'] as String,
+                child: Text(
+                  "${item['name']} (${item['specialization']})",
+                  style: GoogleFonts.poppins(fontSize: size.width * 0.035),
+                ),
+              ),
+            )
+            .toList(),
+        onChanged: (value) {
+          final selectedItem = items.firstWhere(
+            (item) => item['name'] == value,
+            orElse: () => {},
+          );
+          onChanged(value, selectedItem['id']);
+        },
       ),
     );
   }
@@ -369,22 +498,82 @@ class _ScheduleAppointmentState extends State<ScheduleAppointment> {
     );
   }
 
-  void _submitForm() {
-    final data = AppointmentDetailsData(
-      name: nameController.text,
-      age: ageController.text,
-      gender: gender ?? '',
-      reason: reasonController.text,
-      doctor: selectedDoctor ?? '',
-      hospital: selectedHospital ?? '',
-      date: selectedDate ?? '',
-      slot: selectedSlot ?? '',
-      contact: '+91 ${contactController.text}',
-    );
+  Future<void> _submitForm() async {
+    setState(() {
+      isSubmitting = true;
+    });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => AppointmentDetails(data: data)),
-    );
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Create appointment object
+      final appointment = AppointmentFirebaseModel(
+        patientName: nameController.text,
+        patientId: currentUser.uid,
+        age: ageController.text,
+        gender: gender ?? '',
+        reason: reasonController.text,
+        doctorName: selectedDoctor ?? '',
+        doctorId: selectedDoctorId ?? '',
+        hospitalName: selectedHospital ?? '',
+        date: selectedDate ?? '',
+        slot: selectedSlot ?? '',
+        contact: '+91 ${contactController.text}',
+        createdAt: DateTime.now(),
+      );
+
+      // Save to Firebase
+      final appointmentId = await _appointmentService.createAppointment(appointment);
+
+      if (appointmentId != null) {
+        // Create data for the next screen
+        final data = AppointmentDetailsData(
+          name: nameController.text,
+          age: ageController.text,
+          gender: gender ?? '',
+          reason: reasonController.text,
+          doctor: selectedDoctor ?? '',
+          hospital: selectedHospital ?? '',
+          date: selectedDate ?? '',
+          slot: selectedSlot ?? '',
+          contact: '+91 ${contactController.text}',
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Appointment scheduled successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AppointmentDetails(data: data)),
+          );
+        }
+      } else {
+        throw Exception('Failed to create appointment');
+      }
+    } catch (e) {
+      print('Error submitting form: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSubmitting = false;
+        });
+      }
+    }
   }
 }

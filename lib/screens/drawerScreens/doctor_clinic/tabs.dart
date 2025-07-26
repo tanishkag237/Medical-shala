@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../widgets/user_avatar.dart';
+import '../../../widgets/simple_user_avatar.dart';
+
 import 'clininc_info.dart';
 import 'doctor_info.dart';
 
@@ -26,9 +27,8 @@ class _DocClinicTabsState extends State<DocClinicTabs> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
          actions: [
-           UserAvatar(
+           SimpleUserAvatar(
              radius: 18,
-             margin: EdgeInsets.only(right: 10),
            ),
          ],
           bottom: const TabBar(
