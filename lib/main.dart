@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'screens/logins/login_screen.dart';
 // import 'screens/logins/user_selection.dart';
 import 'theme/app_theme.dart';
+import 'core/service_locator.dart';
 // import 'widgets/Navigation.dart';
 
 void main() async {
@@ -15,6 +16,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize dependency injection
+  ServiceLocator().registerServices();
+  
   runApp(const MyApp());
 }
 

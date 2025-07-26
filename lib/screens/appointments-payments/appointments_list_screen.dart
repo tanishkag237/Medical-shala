@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:async';
 import '../../models/appointment_firebase_model.dart';
 import '../../services/appointment_service.dart';
 import '../../widgets/patient_appointment_card.dart';
+import '../../widgets/simple_patient_appointment_card.dart';
 import '../../widgets/custom_app_bar.dart';
 
 class AppointmentsListScreen extends StatefulWidget {
@@ -17,30 +19,83 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
   List<AppointmentFirebaseModel> appointments = [];
   bool isLoading = true;
   String selectedFilter = 'all'; // all, pending, confirmed, completed, cancelled
+  String userType = 'Unknown';
+  String userName = 'Unknown';
+  StreamSubscription? _appointmentsSubscription;
 
   @override
   void initState() {
     super.initState();
+    _loadUserInfo();
     _loadAppointments();
+    
+    // Safety timeout to prevent infinite loading
+    Future.delayed(const Duration(seconds: 10), () {
+      if (mounted && isLoading) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _appointmentsSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadUserInfo() async {
+    try {
+      final userDetails = await _appointmentService.getCurrentUserDetails();
+      if (userDetails != null && mounted) {
+        setState(() {
+          userType = userDetails['userType'] ?? 'Unknown';
+          userName = userDetails['name'] ?? 'Unknown';
+        });
+      }
+    } catch (e) {
+      print('Error loading user info: $e');
+    }
   }
 
   Future<void> _loadAppointments() async {
+    if (!mounted) return;
+    
     setState(() {
       isLoading = true;
     });
 
     try {
-      _appointmentService.getUserAppointments().listen((snapshot) {
+      print('Loading appointments for current user...');
+      
+      // Cancel existing subscription if any
+      await _appointmentsSubscription?.cancel();
+      
+      // Create new subscription
+      _appointmentsSubscription = _appointmentService.getAppointmentsForCurrentUser().listen((snapshot) {
+        if (!mounted) return;
+        
         final List<AppointmentFirebaseModel> loadedAppointments = [];
+        print('Received ${snapshot.docs.length} appointments from Firebase');
+        
         for (var doc in snapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          loadedAppointments.add(AppointmentFirebaseModel.fromMap(data, doc.id));
+          final appointment = AppointmentFirebaseModel.fromMap(data, doc.id);
+          loadedAppointments.add(appointment);
+          print('Appointment: ${appointment.patientName} -> Dr. ${appointment.doctorName} (${appointment.status})');
         }
         
+        setState(() {
+          appointments = loadedAppointments;
+          isLoading = false; // Always set loading to false when we get data (even if empty)
+        });
+      }, onError: (error) {
+        print('Error in appointments stream: $error');
         if (mounted) {
           setState(() {
-            appointments = loadedAppointments;
             isLoading = false;
+            appointments = [];
           });
         }
       });
@@ -49,6 +104,7 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
       if (mounted) {
         setState(() {
           isLoading = false;
+          appointments = [];
         });
       }
     }
@@ -66,7 +122,7 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: const CustomAppBar(title: "My Appointments"),
+      appBar: const CustomAppBar(title: "Appointments"),
       body: Column(
         children: [
           // Filter tabs
@@ -88,32 +144,50 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
 
           // Appointments list
           Expanded(
-            child: isLoading
+            child: isLoading && appointments.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : filteredAppointments.isEmpty
                     ? _buildEmptyState(size)
                     : RefreshIndicator(
-                        onRefresh: _loadAppointments,
+                        onRefresh: () async {
+                          await _loadUserInfo();
+                          await _loadAppointments();
+                        },
                         child: ListView.builder(
                           padding: const EdgeInsets.all(8),
                           itemCount: filteredAppointments.length,
                           itemBuilder: (context, index) {
                             final appointment = filteredAppointments[index];
-                            return PatientAppointmentCard(
-                              appointment: appointment,
-                            );
+                            
+                            // Use simple card for patients, detailed card for doctors
+                            if (userType.toLowerCase() == 'patient') {
+                              return SimplePatientAppointmentCard(
+                                appointment: appointment,
+                              );
+                            } else {
+                              return PatientAppointmentCard(
+                                appointment: appointment,
+                              );
+                            }
                           },
                         ),
                       ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/schedule_appointment');
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: userType.toLowerCase() == 'patient' 
+          ? FloatingActionButton(
+              onPressed: () async {
+                // Navigate to schedule appointment and refresh when returning
+                await Navigator.pushNamed(context, '/schedule_appointment');
+                // Refresh appointments when user returns
+                if (mounted) {
+                  _loadAppointments();
+                }
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
@@ -158,7 +232,7 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
             SizedBox(height: size.height * 0.02),
             Text(
               selectedFilter == 'all' 
-                  ? 'No appointments found'
+                  ? 'No appointments scheduled'
                   : 'No ${selectedFilter} appointments',
               style: GoogleFonts.poppins(
                 fontSize: size.width * 0.045,
@@ -169,7 +243,9 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
             SizedBox(height: size.height * 0.01),
             Text(
               selectedFilter == 'all'
-                  ? 'Schedule your first appointment to get started'
+                  ? userType.toLowerCase() == 'patient' 
+                      ? 'Schedule an appointment to get started'
+                      : 'No patient appointments assigned yet'
                   : 'Try selecting a different filter',
               style: GoogleFonts.poppins(
                 fontSize: size.width * 0.035,
@@ -177,11 +253,14 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            if (selectedFilter == 'all') ...[
+            if (selectedFilter == 'all' && userType.toLowerCase() == 'patient') ...[
               SizedBox(height: size.height * 0.03),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/schedule_appointment');
+                onPressed: () async {
+                  await Navigator.pushNamed(context, '/schedule_appointment');
+                  if (mounted) {
+                    _loadAppointments();
+                  }
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Schedule Appointment'),

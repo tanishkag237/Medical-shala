@@ -5,6 +5,7 @@ import '../../widgets/AppointmentChart.dart';
 import '../../widgets/Button_text.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/patient_appointment_card.dart';
+import '../../widgets/simple_patient_appointment_card.dart';
 import '../appointments-payments/schedule_appointment.dart';
 
 class AppointmentScreen extends StatefulWidget {
@@ -18,11 +19,26 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   final AppointmentService _appointmentService = AppointmentService();
   List<AppointmentFirebaseModel> appointments = [];
   bool isLoadingAppointments = true;
+  String userType = 'Unknown';
 
   @override
   void initState() {
     super.initState();
+    _loadUserInfo();
     _loadAppointments();
+  }
+
+  Future<void> _loadUserInfo() async {
+    try {
+      final userDetails = await _appointmentService.getCurrentUserDetails();
+      if (userDetails != null && mounted) {
+        setState(() {
+          userType = userDetails['userType'] ?? 'Unknown';
+        });
+      }
+    } catch (e) {
+      print('Error loading user info: $e');
+    }
   }
 
   Future<void> _loadAppointments() async {
@@ -31,11 +47,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
     });
 
     try {
-      _appointmentService.getUserAppointments().listen((snapshot) {
+      print('Dashboard: Loading appointments for current user...');
+      _appointmentService.getAppointmentsForCurrentUser().listen((snapshot) {
         final List<AppointmentFirebaseModel> loadedAppointments = [];
+        print('Dashboard: Received ${snapshot.docs.length} appointments from Firebase');
+        
         for (var doc in snapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
-          loadedAppointments.add(AppointmentFirebaseModel.fromMap(data, doc.id));
+          final appointment = AppointmentFirebaseModel.fromMap(data, doc.id);
+          loadedAppointments.add(appointment);
+          print('Dashboard: ${appointment.patientName} -> Dr. ${appointment.doctorName} (${appointment.status})');
         }
         
         if (mounted) {
@@ -130,7 +151,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               const SizedBox(height: 20),
 
               // 🩺 Dynamic List of Appointments from Firebase
-              if (isLoadingAppointments)
+              if (isLoadingAppointments && appointments.isEmpty)
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
@@ -171,8 +192,14 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                   ),
                 )
               else
-                ...appointments.map((appointment) => 
-                  PatientAppointmentCard(appointment: appointment)),
+                ...appointments.map((appointment) {
+                  // Use simple card for patients, detailed card for doctors
+                  if (userType.toLowerCase() == 'patient') {
+                    return SimplePatientAppointmentCard(appointment: appointment);
+                  } else {
+                    return PatientAppointmentCard(appointment: appointment);
+                  }
+                }),
             ],
           ),
         ),
