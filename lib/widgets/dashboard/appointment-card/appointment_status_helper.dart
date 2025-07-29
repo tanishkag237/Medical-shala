@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../models/appointment_firebase_model.dart';
+import '../../../../models/appointment_firebase_model.dart';
 
 class AppointmentStatusHelper {
   static Map<String, dynamic> getAppointmentStatus(AppointmentFirebaseModel appointment) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/appointment_firebase_model.dart';
+import '../../../../models/appointment_firebase_model.dart';
 import 'index.dart';
 
 class PatientAppointmentCard extends StatelessWidget {

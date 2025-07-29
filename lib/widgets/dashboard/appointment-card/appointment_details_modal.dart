@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/appointment_firebase_model.dart';
+import '../../../../models/appointment_firebase_model.dart';
 import 'appointment_status_helper.dart';
 
 class AppointmentDetailsModal {

@@ -3,6 +3,7 @@ import 'package:pie_chart/pie_chart.dart';
 import '../../models/appointment_firebase_model.dart';
 import 'appointment-card/appointment_status_helper.dart';
 
+
 class AppointmentChart extends StatelessWidget {
   final List<AppointmentFirebaseModel> appointments;
   
