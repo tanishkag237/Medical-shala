@@ -110,6 +110,7 @@ flutter:
     - assets/overview/addfile.png
     - assets/overview/clock.png
     - assets/overview/patient.png
+    - assets/people/p1.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

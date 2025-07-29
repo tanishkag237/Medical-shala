@@ -20,8 +20,17 @@ class PatientCard extends StatelessWidget {
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: AssetImage(patient.imagePath),
+          backgroundImage: patient.imagePath.isNotEmpty && patient.imagePath != 'assets/people/p1.jpeg'
+              ? NetworkImage(patient.imagePath) as ImageProvider
+              : const AssetImage('assets/people/p1.jpeg'),
           radius: 30,
+          onBackgroundImageError: (exception, stackTrace) {
+            // Fallback to default image if network image fails
+            print('Error loading patient image: $exception');
+          },
+          child: patient.imagePath.isEmpty || patient.imagePath == 'assets/people/p1.jpeg'
+              ? null
+              : null, // Show initials if no image
         ),
         title: Text(
           patient.name,
