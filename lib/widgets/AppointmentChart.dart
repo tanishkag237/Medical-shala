@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import '../models/appointment_firebase_model.dart';
+import 'appointment-card/appointment_status_helper.dart';
 
 class AppointmentChart extends StatelessWidget {
   final List<AppointmentFirebaseModel> appointments;
@@ -18,23 +19,26 @@ class AppointmentChart extends StatelessWidget {
     int completed = 0;
 
     for (var appointment in appointments) {
-      final status = appointment.status.toLowerCase();
+      // Use real-time status calculation for consistency with appointment cards
+      final statusInfo = AppointmentStatusHelper.getAppointmentStatus(appointment);
+      final realTimeStatus = statusInfo['status'] as String;
       
-      switch (status) {
-        case 'pending':
-        case 'confirmed':
+      switch (realTimeStatus) {
+        case 'PENDING':
+        case 'CONFIRMED':
+        case 'SCHEDULED':
           upcoming++;
           break;
-        case 'ongoing':
-        case 'in-progress':
+        case 'IN PROGRESS':
           ongoing++;
           break;
-        case 'completed':
+        case 'COMPLETED':
           completed++;
           break;
-        case 'cancelled':
-          // We can count cancelled as a separate category or include in completed
-          completed++; // or create a separate cancelled counter
+        case 'CANCELLED':
+        case 'MISSED':
+          // Group cancelled/missed with completed to maintain 3 categories
+          completed++;
           break;
         default:
           upcoming++; // Default to upcoming for unknown statuses

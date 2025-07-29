@@ -74,14 +74,14 @@ class AppointmentCardComponents {
         const SizedBox(height: 4),
 
         // Doctor Name
-        Text(
-          "Dr. ${appointment.doctorName}",
-          style: TextStyle(
-            color: Colors.blue.shade700,
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-          ),
-        ),
+        // Text(
+        //   "Dr. ${appointment.doctorName}",
+        //   style: TextStyle(
+        //     color: Colors.blue.shade700,
+        //     fontWeight: FontWeight.w500,
+        //     fontSize: 14,
+        //   ),
+        // ),
       ],
     );
   }

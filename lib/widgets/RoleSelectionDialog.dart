@@ -6,6 +6,7 @@ class RoleSelectionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       title: const Text('Choose Your Role'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
