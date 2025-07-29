@@ -1,3 +1,4 @@
+import 'package:MedicalShala/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../logins/login_screen.dart';
 
@@ -24,8 +25,11 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+          ),
           onPressed: () => _logout(context),
-          child: const Text('Logout'),
+          child: const Text('Logout', style: TextStyle(color: Colors.white)),
         ),
       ),
     );
