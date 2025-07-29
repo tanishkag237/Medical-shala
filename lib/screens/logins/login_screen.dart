@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 
 import '../../services/auth_service.dart';
-import '../../widgets/Navigation.dart';
-import '../../widgets/RoleSelectionDialog.dart';
+import '../../widgets/overview-widgets/Navigation.dart';
+import '../../widgets/overview-widgets/RoleSelectionDialog.dart';
 import 'doc_login.dart';
 import 'pateint_login.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 import '../models/appointment_firebase_model.dart';
 
 class PatientAppointmentCard extends StatelessWidget {

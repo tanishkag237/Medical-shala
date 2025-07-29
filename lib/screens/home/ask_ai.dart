@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 
 import '../../models/chat_message.dart';
 import '../../services/gemini_service.dart';
-import '../../widgets/app_drawer.dart';
+import '../../widgets/overview-widgets/app_drawer.dart';
 
 
 class AskAIScreen extends StatefulWidget {

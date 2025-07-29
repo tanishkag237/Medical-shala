@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "medshala" "\0"
+            VALUE "FileDescription", "MedicalShala" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "medshala" "\0"
+            VALUE "InternalName", "MedicalShala" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "medshala.exe" "\0"
-            VALUE "ProductName", "medshala" "\0"
+            VALUE "OriginalFilename", "MedicalShala.exe" "\0"
+            VALUE "ProductName", "MedicalShala" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

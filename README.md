@@ -1,4 +1,4 @@
-# medshala
+# MedicalShala
 
 A new Flutter project.
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/audio_upload_encounter.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../widgets/overview-widgets/custom_app_bar.dart';
 import '../../widgets/encounter_dropdowns.dart';
 
 class Encounter extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/dummy_patients.dart'; // Your dummy data file
 import '../../../models/patient_model.dart';
-import '../../../widgets/app_drawer.dart'; // Your PatientModel
+import '../../../widgets/overview-widgets/app_drawer.dart'; // Your PatientModel
 import 'SinglePatientChat.dart';
 
 class InboxList extends StatelessWidget {

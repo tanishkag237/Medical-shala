@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/appointment_details_data.dart';
 import '../../models/appointment_firebase_model.dart';
 import '../../services/appointment_service.dart';
-import '../../widgets/Button_text.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../widgets/overview-widgets/Button_text.dart';
+import '../../widgets/overview-widgets/custom_app_bar.dart';
 import 'appointment_details.dart';
 
 class ScheduleAppointment extends StatefulWidget {

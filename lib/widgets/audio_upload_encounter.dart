@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 
 class AudioPlayerWidget extends StatefulWidget {
   const AudioPlayerWidget({Key? key}) : super(key: key);

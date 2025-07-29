@@ -1,11 +1,11 @@
 // screens/campaign_screen.dart
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 
 import '../../data/campaign_dummy.dart';
 import '../../models/campaign_model.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../widgets/overview-widgets/custom_app_bar.dart';
 
 class CampaignScreen extends StatefulWidget {
   const CampaignScreen({super.key});

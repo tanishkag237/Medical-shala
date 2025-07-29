@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/custom_app_bar.dart';
+import '../../widgets/overview-widgets/custom_app_bar.dart';
 
 class PrescriptionScreen extends StatefulWidget {
   const PrescriptionScreen({super.key});

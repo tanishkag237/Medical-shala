@@ -4,7 +4,7 @@ import '../../../models/diagnosis_entry.dart';
 import '../../../models/patient_model.dart';
 import 'package:intl/intl.dart';
 
-import '../../../widgets/custom_app_bar.dart';
+import '../../../widgets/overview-widgets/custom_app_bar.dart';
 
 class SinglePatientHistory extends StatelessWidget {
   final PatientModel patient;

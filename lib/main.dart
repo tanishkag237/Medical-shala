@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MedShala',
+      title: 'Medical Shala',
       home: const LoginScreen(),
        theme: appTheme,
       debugShowCheckedModeBanner: false,

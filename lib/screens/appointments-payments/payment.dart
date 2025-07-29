@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/theme/app_colors.dart';
-import 'package:medshala/widgets/Button_text.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
+import 'package:MedicalShala/widgets/overview-widgets/Button_text.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});

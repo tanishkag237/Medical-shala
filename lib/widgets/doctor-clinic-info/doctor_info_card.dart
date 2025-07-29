@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/doctor_model.dart';
+import '../../models/doctor_model.dart';
 
 class DoctorInfoCard extends StatelessWidget {
   final DoctorCard doctor; // Use the Doctor model class

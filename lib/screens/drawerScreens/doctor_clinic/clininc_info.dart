@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../widgets/clinic_card.dart';
+import '../../../widgets/doctor-clinic-info/clinic_card.dart';
 
 class ClinicInfo extends StatefulWidget {
   const ClinicInfo({super.key});

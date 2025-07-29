@@ -7,7 +7,7 @@ import '../../models/appointment_firebase_model.dart';
 import '../../models/user_model.dart';
 import '../../widgets/patient_appointment_card.dart';
 import '../../widgets/simple_patient_appointment_card.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../widgets/overview-widgets/custom_app_bar.dart';
 
 /// Clean appointments list screen with proper separation of concerns
 class CleanAppointmentsListScreen extends StatefulWidget {

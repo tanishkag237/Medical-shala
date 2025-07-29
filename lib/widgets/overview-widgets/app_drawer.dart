@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/screens/drawerScreens/prescription.dart';
-import '../screens/drawerScreens/BedAllocationScreen.dart';
-import '../screens/drawerScreens/PaymentRevenueScreen.dart';
-import '../screens/drawerScreens/campaigns.dart';
-import '../screens/drawerScreens/doctor_clinic/tabs.dart';
-import '../screens/drawerScreens/encounter.dart';
-import '../screens/drawerScreens/history/history_tabs.dart';
-import '../screens/drawerScreens/profile.dart';
+import 'package:MedicalShala/screens/drawerScreens/prescription.dart';
+import '../../screens/drawerScreens/BedAllocationScreen.dart';
+import '../../screens/drawerScreens/PaymentRevenueScreen.dart';
+import '../../screens/drawerScreens/campaigns.dart';
+import '../../screens/drawerScreens/doctor_clinic/tabs.dart';
+import '../../screens/drawerScreens/encounter.dart';
+import '../../screens/drawerScreens/history/history_tabs.dart';
+import '../../screens/drawerScreens/profile.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

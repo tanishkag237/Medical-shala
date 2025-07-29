@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/Navigation.dart';
-import '../../widgets/custom_text_field.dart';
+import '../../widgets/overview-widgets/Navigation.dart';
+import '../../widgets/overview-widgets/custom_text_field.dart';
 // import '../navigation.dart';
 // import 'login_screen.dart';
 

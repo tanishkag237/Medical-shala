@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/screens/appointments-payments/payment.dart';
-import 'package:medshala/widgets/Button_text.dart';
+import 'package:MedicalShala/screens/appointments-payments/payment.dart';
+import 'package:MedicalShala/widgets/overview-widgets/Button_text.dart';
 import '../../models/appointment_details_data.dart';
 
 class AppointmentDetails extends StatefulWidget {

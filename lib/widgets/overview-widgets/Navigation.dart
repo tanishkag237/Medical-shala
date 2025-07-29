@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../screens/home/ask_ai.dart';
-import '../screens/home/dashboard_screen.dart';
-import '../screens/home/inbox/inbox.dart';
+import '../../screens/home/ask_ai.dart';
+import '../../screens/home/dashboard_screen.dart';
+import '../../screens/home/inbox/inbox.dart';
 import 'app_drawer.dart';
 
 // import '../theme/app_colors.dart';

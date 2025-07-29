@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/theme/app_colors.dart';
-import 'package:medshala/widgets/app_drawer.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
+import 'package:MedicalShala/widgets/overview-widgets/app_drawer.dart';
 
 import 'inbox_list.dart';
 

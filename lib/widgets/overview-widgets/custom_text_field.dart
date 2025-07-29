@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:medshala/theme/app_colors.dart';
+// import 'package:MedicalShala/theme/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;

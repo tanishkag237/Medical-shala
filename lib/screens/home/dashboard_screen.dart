@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../models/appointment_firebase_model.dart';
 import '../../services/appointment_service.dart';
-import '../../widgets/AppointmentChart.dart';
-import '../../widgets/Button_text.dart';
-import '../../widgets/app_drawer.dart';
+import '../../widgets/dashboard/AppointmentChart.dart';
+import '../../widgets/overview-widgets/Button_text.dart';
+import '../../widgets/overview-widgets/app_drawer.dart';
 import '../../widgets/patient_appointment_card.dart';
 import '../../widgets/simple_patient_appointment_card.dart';
 import '../appointments-payments/schedule_appointment.dart';

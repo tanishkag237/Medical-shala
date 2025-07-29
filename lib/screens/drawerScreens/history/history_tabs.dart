@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:medshala/theme/app_colors.dart';
+import 'package:MedicalShala/theme/app_colors.dart';
 
-import '../../../widgets/custom_app_bar.dart';
+import '../../../widgets/overview-widgets/custom_app_bar.dart';
 import 'all_patients_list.dart';
 
 class HistoryAll extends StatefulWidget {

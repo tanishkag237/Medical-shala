@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:medshala/models/doctor_model.dart';
-import '../../../widgets/doctor_info_card.dart';
+import 'package:MedicalShala/models/doctor_model.dart';
+import '../../../widgets/doctor-clinic-info/doctor_info_card.dart';
 
 class DoctorInfo extends StatefulWidget {
   const DoctorInfo({super.key});
