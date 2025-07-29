@@ -9,7 +9,7 @@ final List<PatientModel> dummyPatients = [
     contact: 9876543210,
     allergies: "None",
     bloodgroup: "A+",
-    imagePath: "assets/people/p1.jpg",
+    imagePath: "assets/people/p1.jpeg",
     gender: 'Male',
     id: 1,
     appointmentTime: DateTime.now().add(Duration(hours: 1)),

@@ -111,7 +111,7 @@ class InboxService {
                 bloodgroup: patientData['bloodGroup'] ?? 'Not specified',
                 imagePath: patientData['imagePath']?.isNotEmpty == true 
                     ? patientData['imagePath'] 
-                    : 'assets/people/p1.jpg',
+                    : 'assets/people/p1.jpeg',
                 diagnosisDetails: [
                   DiagnosisEntry(
                     diagnosis: lastMessage,

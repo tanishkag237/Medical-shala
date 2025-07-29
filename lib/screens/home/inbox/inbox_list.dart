@@ -188,9 +188,9 @@ class _InboxListState extends State<InboxList> {
                                     leading: Stack(
                                       children: [
                                         CircleAvatar(
-                                          backgroundImage: patient.imagePath.isNotEmpty && patient.imagePath != 'assets/people/p1.jpg'
+                                          backgroundImage: patient.imagePath.isNotEmpty && patient.imagePath != 'assets/people/p1.jpeg'
                                               ? NetworkImage(patient.imagePath) as ImageProvider
-                                              : const AssetImage('assets/people/p1.jpg'),
+                                              : const AssetImage('assets/people/p1.jpeg'),
                                           radius: 28,
                                           onBackgroundImageError: (exception, stackTrace) {
                                             print('Error loading patient image: $exception');
