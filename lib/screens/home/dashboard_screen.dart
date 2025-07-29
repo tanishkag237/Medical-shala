@@ -117,7 +117,7 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
           child: Column(
             children: [
-              const AppointmentChart(),
+              AppointmentChart(appointments: appointments),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

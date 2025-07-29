@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:medshala/theme/app_colors.dart';
 import '../models/appointment_firebase_model.dart';
 
 class SimplePatientAppointmentCard extends StatelessWidget {
@@ -87,7 +88,7 @@ class SimplePatientAppointmentCard extends StatelessWidget {
               Icon(
                 Icons.person,
                 size: 20,
-                color: Colors.blue.shade600,
+                color: AppColors.primary,
               ),
               const SizedBox(width: 8),
               Expanded(

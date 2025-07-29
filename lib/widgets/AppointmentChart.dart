@@ -1,36 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
-// import '../models/patient_model.dart';
-import '../data/dummy_patients.dart'; // <-- Make sure this has List<PatientModel>
+import '../models/appointment_firebase_model.dart';
 
 class AppointmentChart extends StatelessWidget {
-  const AppointmentChart({super.key});
+  final List<AppointmentFirebaseModel> appointments;
+  
+  const AppointmentChart({
+    super.key,
+    required this.appointments,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Count patients by status
-    final now = DateTime.now();
-
+    // Count appointments by status
     int upcoming = 0;
     int ongoing = 0;
-    int missed = 0;
+    int completed = 0;
 
-    for (var patient in dummyPatients) {
-      final diff = patient.appointmentTime.difference(now);
-
-      if (diff.inMinutes.abs() <= 15) {
-        ongoing++;
-      } else if (patient.appointmentTime.isAfter(now)) {
-        upcoming++;
-      } else {
-        missed++;
+    for (var appointment in appointments) {
+      final status = appointment.status.toLowerCase();
+      
+      switch (status) {
+        case 'pending':
+        case 'confirmed':
+          upcoming++;
+          break;
+        case 'ongoing':
+        case 'in-progress':
+          ongoing++;
+          break;
+        case 'completed':
+          completed++;
+          break;
+        case 'cancelled':
+          // We can count cancelled as a separate category or include in completed
+          completed++; // or create a separate cancelled counter
+          break;
+        default:
+          upcoming++; // Default to upcoming for unknown statuses
       }
     }
 
     final Map<String, double> dataMap = {
       "Upcoming": upcoming.toDouble(),
       "Ongoing": ongoing.toDouble(),
-      "Missed": missed.toDouble(),
+      "Completed": completed.toDouble(),
     };
 
     final colorList = <Color>[
@@ -70,13 +84,10 @@ class AppointmentChart extends StatelessWidget {
                     ],
                   ),
                   Text(
-                        "${dummyPatients.length}",
+                        "${appointments.length}",
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
-                      Text(
-                        "ALL PATIENTS",
-                        style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 17, fontFamily: "Poppins"),
-                      ),
+                      
                 ],
               ),
             ),
@@ -91,7 +102,7 @@ class AppointmentChart extends StatelessWidget {
                   const SizedBox(height: 8),
                   _buildLegend("UPCOMING", upcoming, Color(0xFFA442DD)),
                   _buildLegend("ONGOING", ongoing, Color(0xFF4CAF50)),
-                  _buildLegend("MISSED", missed, Color(0xFFE91E63)),
+                  _buildLegend("COMPLETED", completed, Color(0xFFE91E63)),
                 ],
               ),
             ),
