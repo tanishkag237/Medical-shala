@@ -1,0 +1,189 @@
+import 'package:flutter/material.dart';
+import 'package:pie_chart/pie_chart.dart';
+import '../../models/appointment_firebase_model.dart';
+import 'appointment-card/appointment_status_helper.dart';
+
+class Appointmentchartpatient extends StatelessWidget {
+  final List<AppointmentFirebaseModel> appointments;
+  
+  const Appointmentchartpatient({
+    super.key,
+    required this.appointments,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Count appointments by real-time status for accurate chart representation
+    int upcoming = 0;
+    int ongoing = 0;
+    int completed = 0;
+    int cancelled = 0; // Track cancelled separately for better accuracy
+
+    for (var appointment in appointments) {
+      // Use real-time status calculation for consistency with appointment cards
+      final statusInfo = AppointmentStatusHelper.getAppointmentStatus(appointment);
+      final realTimeStatus = statusInfo['status'] as String;
+      
+      switch (realTimeStatus) {
+        case 'PENDING':
+        case 'CONFIRMED':
+        case 'SCHEDULED':
+          upcoming++;
+          break;
+        case 'IN PROGRESS':
+          ongoing++;
+          break;
+        case 'COMPLETED':
+          completed++;
+          break;
+        case 'CANCELLED':
+          cancelled++;
+          break;
+        case 'MISSED':
+          // Missed appointments could be counted as completed (past) or separately
+          // For chart simplicity, we'll count missed as completed since they're past events
+          completed++;
+          break;
+        default:
+          upcoming++; // Default to upcoming for unknown statuses
+      }
+    }
+
+    // Combine cancelled with completed for the 3-category chart display
+    // This maintains the original chart structure while using real-time data
+    final totalCompletedAndCancelled = completed + cancelled;
+
+    final Map<String, double> dataMap = {
+      "Upcoming": upcoming.toDouble(),
+      "Ongoing": ongoing.toDouble(),
+      "Completed": totalCompletedAndCancelled.toDouble(), // Include cancelled in completed
+    };
+
+    // Handle empty appointments case
+    final hasAppointments = appointments.isNotEmpty;
+    final displayDataMap = hasAppointments ? dataMap : {"No Data": 1.0};
+
+    final colorList = <Color>[
+      Color(0xFFA442DD),
+      Color(0xFF4CAF50),
+      Color(0xFFE91E63),
+    ];
+
+    return Card(
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: const Color(0xFFEFF7FF),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            // Pie Chart
+            Expanded(
+              flex: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      PieChart(
+                        dataMap: displayDataMap,
+                        chartType: ChartType.ring,
+                        colorList: colorList,
+                        chartRadius: 60,
+                        ringStrokeWidth: 10,
+                      
+                        legendOptions: const LegendOptions(showLegends: false),
+                        chartValuesOptions: const ChartValuesOptions(showChartValues: false),
+                      ),
+                     
+                    ],
+                  ),
+                  Text(
+                        "${appointments.length}",
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      
+                ],
+              ),
+            ),
+            const SizedBox(width: 20),
+
+            // Legend
+            Expanded(
+              flex: 6,
+              child: hasAppointments 
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildLegend("UPCOMING", upcoming, Color(0xFFA442DD)),
+                      _buildLegend("ONGOING", ongoing, Color(0xFF4CAF50)),
+                      _buildLegend("COMPLETED", totalCompletedAndCancelled, Color(0xFFE91E63)),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        "No appointments",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF585858),
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegend(String label, int count, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          // Color indicator dot
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            children: [
+              Text(
+                "$count",
+                style: TextStyle(
+                  fontSize: 20, 
+                  color: color,
+                  fontFamily: "Poppins", 
+                  fontWeight: FontWeight.w500 
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18, 
+                  color: Color(0xFF585858), 
+                  fontFamily: "Poppins", 
+                  fontWeight: FontWeight.w500
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
