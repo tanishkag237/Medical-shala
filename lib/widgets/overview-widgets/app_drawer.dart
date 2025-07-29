@@ -7,6 +7,7 @@ import '../../screens/drawerScreens/doctor_clinic/tabs.dart';
 import '../../screens/drawerScreens/encounter.dart';
 import '../../screens/drawerScreens/history/history_tabs.dart';
 import '../../screens/drawerScreens/profile.dart';
+import '../../screens/drawerScreens/settings.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -36,7 +37,7 @@ class AppDrawer extends StatelessWidget {
           _drawerItem(context, label: "Payment", iconPath: 'assets/icons/navigation/payment.png', destination: PaymentRevenueScreen()),
           _drawerItem(context, label: "History", iconPath: 'assets/icons/navigation/history.png', destination: HistoryAll()),
           _drawerItem(context, label: "Campaign", iconPath: 'assets/icons/navigation/campaign.png', destination: CampaignScreen()),
-          _drawerItem(context, label: "Settings", iconPath: 'assets/icons/navigation/settings.png', destination: MyProfile()),
+          _drawerItem(context, label: "Settings", iconPath: 'assets/icons/navigation/settings.png', destination: SettingsScreen()),
           _drawerItem(context, label: "Help & FAQs", iconPath: 'assets/icons/navigation/help.png', destination: MyProfile()),
         ],
       ),
