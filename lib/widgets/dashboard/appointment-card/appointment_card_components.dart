@@ -8,8 +8,8 @@ class AppointmentCardComponents {
   // Patient Avatar Component
   static Widget buildPatientAvatar(double size) {
     return Container(
-      width: size * 0.25,
-      height: size * 0.25,
+      width: size * 0.3,
+      height: size * 0.3,
       decoration: BoxDecoration(
         color: Colors.blue.shade100,
         borderRadius: BorderRadius.circular(8),
@@ -107,11 +107,11 @@ class AppointmentCardComponents {
           "Date: ${appointment.date}",
           screenWidth,
         ),
-        _buildDetailItem(
-          Icons.local_hospital_outlined,
-          appointment.hospitalName,
-          screenWidth,
-        ),
+        // _buildDetailItem(
+        //   Icons.local_hospital_outlined,
+        //   appointment.hospitalName,
+        //   screenWidth,
+        // ),
       ],
     );
   }

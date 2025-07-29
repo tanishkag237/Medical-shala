@@ -4,7 +4,7 @@ import '../../services/appointment_service.dart';
 import '../../widgets/dashboard/AppointmentChart.dart';
 import '../../widgets/overview-widgets/Button_text.dart';
 import '../../widgets/overview-widgets/app_drawer.dart';
-import '../../widgets/patient_appointment_card.dart';
+import '../../widgets/dashboard/appointment-card/patient_appointment_card_new.dart';
 import '../../widgets/simple_patient_appointment_card.dart';
 import '../appointments-payments/schedule_appointment.dart';
 
