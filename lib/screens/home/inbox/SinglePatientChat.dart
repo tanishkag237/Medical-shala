@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:MedicalShala/theme/app_colors.dart';
+import 'package:MedicalShala/models/patient_model.dart';
 
 class Singlepatientchat extends StatefulWidget {
   final String name;
+  final PatientModel? patient;
   
-  const Singlepatientchat({super.key, required this.name});
+  const Singlepatientchat({super.key, required this.name, this.patient});
 
   @override
   State<Singlepatientchat> createState() => _SinglepatientchatState();
