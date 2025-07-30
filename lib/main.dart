@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'screens/logins/login_screen.dart';
 // import 'screens/logins/user_selection.dart';
+import 'screens/splashScreen.dart';
 import 'theme/app_theme.dart';
 import 'core/service_locator.dart';
 // import 'widgets/Navigation.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Medical Shala',
-      home: const LoginScreen(),
+      home: const Splashscreen(),
        theme: appTheme,
       debugShowCheckedModeBanner: false,
     );

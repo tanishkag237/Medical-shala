@@ -88,52 +88,6 @@ class _InboxListState extends State<InboxList> {
        drawer: const AppDrawer(),
       body: Column(
         children: [
-          // Header with patient count
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  isDoctor ? 'My Patients' : 'All Patients',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                if (!isLoading) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${patients.length} ${patients.length == 1 ? 'patient' : 'patients'}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          
-          const Divider(
-            thickness: 1,
-            color: Colors.grey,
-            height: 0,
-          ),
           
           Expanded(
             child: isLoading

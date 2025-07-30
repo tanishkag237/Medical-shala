@@ -1,3 +1,4 @@
+import 'package:MedicalShala/screens/logins/login_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'logins/user_selection.dart';
@@ -17,7 +18,7 @@ class _SplashscreenState extends State<Splashscreen> {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 800),
-          pageBuilder: (_, __, ___) => const UserTypeSelection(),
+          pageBuilder: (_, __, ___) => const LoginScreen(),
           transitionsBuilder: (_, animation, __, child) {
             return FadeTransition(opacity: animation, child: child);
           },
